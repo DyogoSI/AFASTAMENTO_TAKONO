@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Afastamento de Pessoal - Takono</title>
+    <meta charset="utf-8">
+    <link rel="icon" href="caminho_do_seu_favicon.ico" type="image/x-icon">
+    
+    <link type="text/css" rel="stylesheet" href="/style-guide/css/fluig-style-guide.min.css"/>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <script type="text/javascript" src="/portal/resources/js/jquery/jquery.js"></script>
+    <script type="text/javascript" src="/portal/resources/js/jquery/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="/portal/resources/js/mustache/mustache-min.js"></script>
+    <script type="text/javascript" src="/style-guide/js/fluig-style-guide.min.js" charset="utf-8"></script>
+    
+    <script type="text/javascript" src="/webdesk/vcXMLRPC.js"></script>
+    <script type="text/javascript" src="fluigFormAttachment.min.js"></script>
+    
+    <style>
+        /* =========================================
+           RESET E BACKGROUND - GUIA DE DESIGN UI/UX
+        ========================================= */
+        :root {
+            --nz-green: #138a43;
+            --nz-green-dark: #0f5f2f;
+            --nz-green-soft: #eaf7ef;
+            --nz-blue: #24aee4;
+            --nz-black: #050505;
+            --nz-text: #2f3a40;
+            --nz-muted: #8d9aa3;
+            --nz-border: #dfe5e8;
+            --nz-border-soft: #edf0f2;
+            --nz-bg: #ffffff; /* Fundo Branco */
+            --nz-card-bg: #ffffff;
+            --nz-field-bg: #ffffff; /* Fundo branco puro para remover impressão de bloqueio */
+            --nz-field-disabled: #e9eeee;
+            --nz-warning-bg: #fff9dd;
+            --nz-warning-border: #f0a429;
+            --nz-warning-text: #8a6728;
+            --nz-danger: #e53935;
+            
+            /* Cores da Logo IRHO / Takono */
+            --irho-orange: #FA5C05;
+            --irho-orange-dark: #CA4300;
+        }
+
+        * { box-sizing: border-box; }
+        body, html {
+            background: var(--nz-bg) !important;
+            min-height: 100vh; 
+            font-family: 'Inter', 'Roboto', sans-serif !important; 
+            margin: 0; 
+            padding: 0;
+            overflow-x: hidden;
+        }
+        form { width: 100%; margin: 0 auto; }
+        
+        /* =========================================
+           ESTRUTURA GERAL (SIDEBAR + MAIN)
+        ========================================= */
+        .nz-form-layout {
+            display: flex;
+            gap: 26px;
+            align-items: flex-start;
+            width: 100%;
+            min-height: 100vh;
+            padding: 26px;
+            box-sizing: border-box;
+        }
+        
+        .nz-main-content {
+            flex: 1;
+            min-width: 0;
+            /* Compensa o espaço da barra congelada para não ficar escondido atrás dela (340px de largura + 26px de gap) */
+            margin-left: 366px; 
+        }
+
+        /* =========================================
+           SIDEBAR LATERAL CONGELADA (FIXED)
+        ========================================= */
+        .nz-sidebar {
+            width: 340px;
+            height: calc(100vh - 52px); /* Alterado para height fixo */
+            /* Degradê Laranja IRHO */
+            background: linear-gradient(180deg, var(--irho-orange), var(--irho-orange-dark));
+            color: #ffffff;
+            border-radius: 18px;
+            padding: 26px 26px 24px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+            box-sizing: border-box;
+            
+            /* CONGELAMENTO NA TELA */
+            position: fixed; 
+            top: 26px;
+            left: 26px;
+            z-index: 99; /* Garante que fique acima de outros itens */
+            overflow-y: auto; /* Permite rolar a sidebar internamente se a tela for muito pequena */
+            
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Remove a barrinha de rolagem interna da sidebar para ficar limpo */
+        .nz-sidebar::-webkit-scrollbar { width: 0; background: transparent; }
+
+        .nz-sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        .nz-sidebar-brand-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 14px;
+            padding: 24px 16px 16px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+        }
+
+        .nz-sidebar-logo {
+            width: 150px;
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
+            margin-bottom: 12px;
+        }
+
+        .nz-sidebar-title {
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.95;
+        }
+
+        .nz-sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .nz-sidebar-menu a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 400; /* Sem negrito */
+            line-height: 1.25;
+            padding: 11px 0 11px 16px;
+            border-left: 3px solid transparent;
+            opacity: 0.94;
+            transition: all 0.2s ease;
+        }
+
+        .nz-sidebar-menu a.active, .nz-sidebar-menu a:hover {
+            font-weight: 400;
+            border-left-color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+            opacity: 1;
+        }
+
+        .nz-sidebar-footer {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.4);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nz-footer-credits {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .nz-credits-text {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+        }
+
+        .nz-credits-img {
+            height: 24px;
+            width: auto;
+            margin-top: 2px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .nz-sidebar-social {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .nz-sidebar-social a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: opacity 0.2s ease;
+            opacity: 0.9;
+        }
+
+        .nz-sidebar-social a:hover {
+            opacity: 1;
+        }
+
+        .nz-sidebar-social svg {
+            width: 24px;
+            height: 24px;
+            fill: #ffffff;
+        }
+
+        /* =========================================
+           SISTEMA DE GRID E RESPONSIVIDADE
+        ========================================= */
+        .container-fluid { width: 100%; padding: 0; }
+        .row { display: flex; flex-wrap: wrap; margin-right: -15px; margin-left: -15px; }
+        .col-md-2 { flex: 0 0 16.666667%; max-width: 16.666667%; padding: 0 15px; }
+        .col-md-3 { flex: 0 0 25%; max-width: 25%; padding: 0 15px; }
+        .col-md-4 { flex: 0 0 33.333333%; max-width: 33.333333%; padding: 0 15px; }
+        .col-md-5 { flex: 0 0 41.666667%; max-width: 41.666667%; padding: 0 15px; }
+        .col-md-6 { flex: 0 0 50%; max-width: 50%; padding: 0 15px; }
+        .col-md-8 { flex: 0 0 66.666667%; max-width: 66.666667%; padding: 0 15px; }
+        .col-md-12 { flex: 0 0 100%; max-width: 100%; padding: 0 15px; }
+        .form-group { margin-bottom: 24px; width: 100%; }
+
+        @media (max-width: 768px) { 
+            .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-8, .col-md-12 { flex: 0 0 100%; max-width: 100%; } 
+            
+            /* Ajustes Mobile: Descongela a sidebar e empilha tudo */
+            .nz-form-layout { flex-direction: column; gap: 20px; padding: 15px; }
+            .nz-sidebar { position: relative; top: 0; left: 0; width: 100%; height: auto; min-height: unset; margin-bottom: 0px; z-index: 1; }
+            .nz-main-content { margin-left: 0; width: 100%; }
+        }
+
+        /* =========================================
+           ESTILO DOS PAINÉIS
+        ========================================= */
+        .page-header { display: none !important; }
+
+        .panel { 
+            background: var(--nz-card-bg) !important; 
+            border: 1px solid var(--nz-border) !important; 
+            border-radius: 16px !important; 
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04) !important; 
+            margin-bottom: 34px !important; 
+            overflow: hidden; 
+            display: block; 
+            width: 100%; 
+        }
+        
+        .panel-heading { 
+            min-height: 86px; 
+            padding: 0 34px !important; 
+            display: flex; 
+            align-items: center; 
+            gap: 18px; 
+            border-bottom: 1px solid var(--nz-border) !important; 
+            background: transparent !important; 
+        }
+        
+        .panel-title { 
+            color: var(--nz-black) !important; 
+            font-size: 21px !important; 
+            font-weight: 400 !important; /* Sem negrito */
+            text-transform: uppercase; 
+            letter-spacing: 1.4px; 
+            display: flex; 
+            align-items: center; 
+            margin: 0; 
+            width: 100%; 
+        }
+        
+        .panel-body { padding: 26px 34px 34px !important; }
+
+        /* Icones Fluig nos Títulos - Resolvido com SVG Blindado e URL Encoded */
+        .panel-title .fluigicon { 
+            margin-right: 16px; 
+            width: 32px !important; 
+            height: 32px !important; 
+            display: inline-block; 
+            background-size: contain; 
+            background-repeat: no-repeat; 
+            background-position: center;
+        }
+        .panel-title .fluigicon::before { content: none !important; display: none !important; }
+        
+        .fluigicon-user { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath fill='%23000000' d='M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z'/%3E%3C/svg%3E") !important; }
+        .fluigicon-user-config { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 512'%3E%3Cpath fill='%23000000' d='M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h274.9c-2.4-6.8-3.4-14-2.6-21.3l6.8-60.9 1.2-11.1 7.9-7.9 77.3-77.3c-24.5-27.7-60-45.5-99.9-45.5zm45.3 145.3l-6.8 61c-1.1 10.2 7.5 18.8 17.6 17.6l60.9-6.8 137.9-137.9-71.7-71.7-137.9 137.8zM633 268.9L595.1 231c-9.3-9.3-24.5-9.3-33.8 0l-37.8 37.8-4.1 4.1 71.8 71.7 41.8-41.8c9.3-9.4 9.3-24.5 0-33.9z'/%3E%3C/svg%3E") !important; }
+        .fluigicon-form { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%23000000' d='M104 96H56c-13.3 0-24 10.7-24 24v336c0 13.3 10.7 24 24 24h400c13.3 0 24-10.7 24-24V120c0-13.3-10.7-24-24-24h-48V16c0-8.8-7.2-16-16-16h-64c-8.8 0-16 7.2-16 16v80H216V16c0-8.8-7.2-16-16-16h-64c-8.8 0-16 7.2-16 16v80zM24 496c-13.2 0-24-10.8-24-24V120c0-13.2 10.8-24 24-24h48v32c0 17.7 14.3 32 32 32h64c17.7 0 32-14.3 32-32v-32h160v32c0 17.7 14.3 32 32 32h64c17.7 0 32-14.3 32-32v-32h48c13.2 0 24 10.8 24 24v352c0 13.2-10.8 24-24 24H24zM160 264V240c0-13.3-10.7-24-24-24H88c-13.3 0-24 10.7-24 24v24c0 13.3 10.7 24 24 24h48c13.3 0 24-10.7 24-24zm0 128v-24c0-13.3-10.7-24-24-24H88c-13.3 0-24 10.7-24 24v24c0 13.3 10.7 24 24 24h48c13.3 0 24-10.7 24-24zm288-128v-24c0-13.3-10.7-24-24-24H200c-13.3 0-24 10.7-24 24v24c0 13.3 10.7 24 24 24h224c13.3 0 24-10.7 24-24zm0 128v-24c0-13.3-10.7-24-24-24H200c-13.3 0-24 10.7-24 24v24c0 13.3 10.7 24 24 24h224c13.3 0 24-10.7 24-24z'/%3E%3C/svg%3E") !important; }
+        .fluigicon-checked { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%23000000' d='M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z'/%3E%3C/svg%3E") !important; }
+
+        /* Bordas Coloridas para os painéis dinâmicos de histórico */
+        .painel-obs-dinamico { border-left: 5px solid #F29620 !important; }
+        .painel-correcao-dinamico { border-left: 5px solid var(--nz-danger) !important; }
+        .painel-bpo-dinamico { border-left: 5px solid var(--nz-blue) !important; }
+        .painel-acao-dinamico { border-left: 5px solid var(--nz-green) !important; }
+        
+        /* =========================================
+           FORMULÁRIOS E INPUTS
+        ========================================= */
+        label { 
+            display: block; 
+            color: var(--nz-text) !important; 
+            font-size: 13px !important; 
+            font-weight: 400 !important; /* Sem negrito */
+            text-transform: uppercase; 
+            letter-spacing: 1.2px; 
+            margin-bottom: 9px !important; 
+        }
+        .label-obrigatorio::after { content: " *"; color: var(--nz-danger) !important; font-weight: 400; }
+        
+        .form-control { 
+            height: 48px !important; 
+            background: var(--nz-field-bg) !important; 
+            border: 1px solid var(--nz-border) !important; 
+            border-radius: 7px !important; 
+            color: var(--nz-text) !important; 
+            font-size: 15px !important; 
+            box-shadow: none !important; 
+            transition: all 0.2s ease !important; 
+            width: 100%; 
+            padding: 0 16px !important;
+        }
+        textarea.form-control { height: auto !important; min-height: 100px !important; padding: 14px !important; resize: vertical; }
+        
+        .form-control:focus { 
+            background: #ffffff !important; 
+            border-color: var(--nz-green) !important; 
+            box-shadow: 0 0 0 3px rgba(19, 138, 67, 0.12) !important; 
+            outline: none !important; 
+        }
+        
+        .form-control[readonly], .form-control[disabled] { 
+            background: var(--nz-field-disabled) !important; 
+            color: #8d9aa3 !important; 
+            border-color: var(--nz-border) !important; 
+            cursor: not-allowed; 
+        }
+
+        /* Select2 e Lupa (Zoom) - Visual Unificado */
+        .select2-container .select2-selection--single,
+        .select2-container .select2-selection--multiple { 
+            height: 48px !important; 
+            min-height: 48px !important; 
+            background: var(--nz-field-bg) !important; 
+            border: 1px solid var(--nz-border) !important; 
+            border-radius: 7px !important; 
+            display: flex !important; 
+            align-items: center !important; 
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered { 
+            color: var(--nz-text) !important; 
+            font-size: 15px !important; 
+            padding: 0 14px !important; 
+            line-height: 48px !important; 
+            width: 100%;
+        }
+        .select2-container--default.select2-container--disabled .select2-selection--single { background: var(--nz-field-disabled) !important; }
+        .select2-container--default .select2-selection--single .select2-selection__arrow { height: 46px !important; }
+        .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+            min-height: 46px !important;
+            padding: 0 14px !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        .input-group { display: flex !important; width: 100% !important; height: 48px !important; }
+        .input-group .form-control { 
+            border-top-right-radius: 0 !important; 
+            border-bottom-right-radius: 0 !important; 
+            height: 48px !important; 
+            border-right: none !important; 
+        }
+        
+        /* Lupa SVG Blindada em Preto */
+        .input-group-addon .fluigicon { display: none !important; }
+        .input-group-addon { 
+            background: var(--nz-field-bg) !important; 
+            border: 1px solid var(--nz-border) !important; 
+            border-left: none !important; 
+            border-top-right-radius: 7px !important; 
+            border-bottom-right-radius: 7px !important; 
+            width: 44px !important; 
+            display: flex !important; 
+            align-items: center; 
+            justify-content: center; 
+            margin: 0 !important; 
+            padding: 0 !important; 
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' width='16' height='16'%3E%3Cpath fill='%23000000' d='M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z'/%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: center !important;
+            cursor: pointer;
+        }
+        .input-group-addon::after { content: none !important; display: none !important; }
+
+        /* =========================================
+           ESTILOS DOS ANEXOS E BOTÃO DE LIXEIRA CORRIGIDO
+        ========================================= */
+        .caixa-anexo { 
+            border: 1px dashed var(--nz-border); 
+            background: #f8fafb; 
+            border-radius: 12px; 
+            padding: 24px; 
+            margin-top: 15px; 
+        }
+        .caixa-anexo label { 
+            color: #9fa8af !important; 
+            font-size: 15px !important; 
+            text-transform: uppercase; 
+            margin-bottom: 12px !important; 
+        }
+        .fluigFormAttachmentComponent { display: flex; width: 100%; gap: 12px; align-items: center; }
+        .fluigFormAttachmentComponent input { flex: 1; min-width: 0; }
+        .fluigFormAttachmentComponent_buttons { flex-shrink: 0; display: flex; gap: 8px; }
+        .fluigFormAttachmentComponent_buttons .btn i { display: none !important; } 
+        
+        .fluigFormAttachmentComponent_buttons .btn, .btn-anexo-historico {
+            height: 48px !important; 
+            width: 48px !important; 
+            border-radius: 7px !important; 
+            border: 0 !important; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            cursor: pointer;
+            background-repeat: no-repeat !important; background-position: center !important; background-size: 18px !important;
+        }
+        .fluigFormAttachmentComponent_buttons .btn:hover, .btn-anexo-historico:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        /* BOTÕES DE ANEXO BLINDADOS (LIXEIRA CORRIGIDA, UPLOAD, VISUALIZAR) */
+        .fluigFormAttachmentBtnDeleteFile { background-color: var(--nz-danger) !important; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath fill='%23ffffff' d='M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z'/%3E%3C/svg%3E") !important; }
+        .fluigFormAttachmentBtnUploadFile { background-color: var(--nz-green) !important; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath fill='%23ffffff' d='M364.2 83.8c-24.4-24.4-64-24.4-88.4 0l-184 184c-42.1 42.1-42.1 110.3 0 152.4s110.3 42.1 152.4 0l152-152c10.9-10.9 28.7-10.9 39.6 0s10.9 28.7 0 39.6l-152 152c-64 64-167.6 64-231.6 0s-64-167.6 0-231.6l184-184c46.3-46.3 121.3-46.3 167.6 0s46.3 121.3 0 167.6l-176 176c-28.6 28.6-75 28.6-103.6 0s-28.6-75 0-103.6l144-144c10.9-10.9 28.7-10.9 39.6 0s10.9 28.7 0 39.6l-144 144c-6.7 6.7-6.7 17.7 0 24.4s17.7 6.7 24.4 0l176-176c24.4-24.4 24.4-64 0-88.4z'/%3E%3C/svg%3E") !important; }
+        .fluigFormAttachmentBtnViewerFile, .btn-anexo-historico { background-color: var(--nz-blue) !important; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 512'%3E%3Cpath fill='%23ffffff' d='M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.4 78.1-95.4 92.9-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.8-35.7-46.1-87.7-92.9-131.1C433.5 68.8 368.8 32 288 32zM128 256a160 160 0 1 1 320 0 160 160 0 1 1 -320 0zm160 80a80 80 0 1 0 0-160 80 80 0 1 0 0 160z'/%3E%3C/svg%3E") !important; }
+        .btn-visualizar-injetado {
+            width: 48px !important; height: 48px !important;
+            background-color: var(--nz-blue) !important; border: 0 !important;
+            border-radius: 7px !important; cursor: pointer; display: inline-flex;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 512'%3E%3Cpath fill='%23ffffff' d='M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.4 78.1-95.4 92.9-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.8-35.7-46.1-87.7-92.9-131.1C433.5 68.8 368.8 32 288 32zM128 256a160 160 0 1 1 320 0 160 160 0 1 1 -320 0zm160 80a80 80 0 1 0 0-160 80 80 0 1 0 0 160z'/%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important; background-position: center !important; background-size: 18px !important;
+        }
+        .btn-visualizar-injetado:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+
+        /* Alertas visuais orientativos URL Encoded */
+        .aviso-doc {
+            background: var(--nz-warning-bg); 
+            border: 1px solid var(--nz-warning-border); 
+            color: var(--nz-warning-text); 
+            border-radius: 7px; 
+            padding: 18px 24px; 
+            margin-top: -10px;
+            margin-bottom: 24px; 
+            font-weight: 400; 
+            font-size: 15px; 
+            display: flex; 
+            align-items: center; 
+        }
+        .aviso-doc .fluigicon { display: none !important; }
+        .aviso-doc::before { 
+            content: "";
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            display: inline-block;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%238a6728' d='M256 8C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm0 110c23.196 0 42 18.804 42 42s-18.804 42-42 42-42-18.804-42-42 18.804-42 42-42zm56 254c0 6.627-5.373 12-12 12h-88c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h12v-64h-12c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h64c6.627 0 12 5.373 12 12v100h12c6.627 0 12 5.373 12 12v24z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        /* Oculta a tabela original e ajusta margens do Histórico */
+        .tabelas-ocultas { height: 0px; overflow: hidden; visibility: hidden; }
+        #historico-timeline { display: flex; flex-direction: column; gap: 34px; margin-top: 34px; margin-bottom: 34px; }
+        
+    </style>
+</head>
+<body>
+    <form name="form" role="form">
+        <input type="hidden" id="TxtChapa" name="TxtChapa" />
+        <input type="hidden" id="CodPessoa" name="CodPessoa" />
+        <input type="hidden" id="TxtNomeCol" name="TxtNomeCol" />
+        <input type="hidden" id="DtLimitFer" name="DtLimitFer" />
+        <input type="hidden" id="txtDtAdm" name="txtDtAdm" />
+        <input type="hidden" id="txtMembCipaCod" name="txtMembCipaCod" />
+        <input type="hidden" id="CodTipo" name="CodTipo" />
+        <input type="hidden" id="CodCategoria" name="CodCategoria" />
+        <input type="hidden" id="txtSalOrigem" name="txtSalOrigem" />
+        <input type="hidden" id="TEMPRAZOCONTR" name="TEMPRAZOCONTR" />
+        <input type="hidden" id="FIMPRAZOCONTR" name="FIMPRAZOCONTR" />
+        <input type="hidden" id="NROFICHAREG" name="NROFICHAREG" />
+        <input type="hidden" id="CODRECEBIMENTO" name="CODRECEBIMENTO" />
+        <input type="hidden" id="CodFilialDestino" name="CodFilialDestino" />
+        <input type="hidden" id="codSituacaoOculto" name="codSituacaoOculto" />
+        
+        <input type="text" id="cpReaberturaChamado" name="cpReaberturaChamado" style="display:none;" />
+        <input type="text" id="cpParecerReabertura" name="cpParecerReabertura" style="display:none;" />
+        <input type="text" id="cpRespGestor2" name="cpRespGestor2" style="display:none;" />
+        <input type="text" id="cpDecisaoRH" name="cpDecisaoRH" style="display:none;" />
+        <input type="text" id="cpParecercol2" name="cpParecercol2" style="display:none;" />
+        <input type="text" id="cpFlagNovaRodada" name="cpFlagNovaRodada" style="display:none;" />
+
+        <div class="nz-form-layout">
+            
+            <aside class="nz-sidebar">
+                <div class="nz-sidebar-header">
+                    <div class="nz-sidebar-brand-box">
+                        <img src="logo.takonobranca.png" class="nz-sidebar-logo" alt="Takono">
+                        <span class="nz-sidebar-title">Afastamento</span>
+                    </div>
+                </div>
+                <nav class="nz-sidebar-menu">
+                    <a href="#painelSolicitante" class="active">Dados do Solicitante</a>
+                    <a href="#painelColaborador">Dados do Colaborador</a>
+                    <a href="#painelAfastamento">Dados do Afastamento</a>
+                    <a href="#historico-timeline">Observações e Anexos</a>
+                </nav>
+                <div class="nz-sidebar-footer">
+                    <div class="nz-footer-credits">
+                        <span class="nz-credits-text">Desenvolvido por</span>
+                        <img src="LOGO-OPERACIONAL-BRANCA.png" alt="Interhativa Operacional" class="nz-credits-img">
+                    </div>
+                    <div class="nz-sidebar-social">
+                        <a href="#" target="_blank" title="Instagram">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
+                        </a>
+                        <a href="#" target="_blank" title="LinkedIn">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg>
+                        </a>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="nz-main-content">
+                <div class="container-fluid">
+                    
+                    <div class="panel panel-default" id="painelSolicitante">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><i class="fluigicon fluigicon-user"></i> Dados do Solicitante</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-3 form-group">
+                                    <label for="nSolicitacao">N. Solicitação</label>
+                                    <input type="text" class="form-control" name="nSolicitacao" id="nSolicitacao" readonly>
+                                </div>
+                                <div class="col-md-3 form-group">
+                                    <label for="dataAbertura">Data Abertura</label>
+                                    <input type="text" class="form-control" name="dataAbertura" id="dataAbertura" readonly>
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <label for="solicitante">Solicitante</label>
+                                    <input type="text" class="form-control" name="solicitante" id="solicitante" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="panel panel-primary" id="painelColaborador">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><i class="fluigicon fluigicon-user"></i> Dados do Colaborador</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-4 form-group">
+                                    <label for="empresaColab">Empresa-Filial</label>
+                                    <input type="zoom" id="empresaColab" name="empresaColab"
+                                           data-zoom="{
+                                               'displayKey':'NOME',
+                                               'datasetId':'ds_empresaFilial',
+                                               'maximumSelectionLength':'1',
+                                               'placeholder':'Pesquise a coligada...',
+                                               'fields':[
+                                                   {'field':'COLIGADA', 'label':'Coligada'},
+                                                   {'field':'NOME', 'label':'Nome da Empresa', 'standard':'true','search':'true'},
+                                                   {'field':'CODFILIAL', 'label':'Filial'},
+                                                   {'field':'NOMEFANTASIAFILIAL', 'label':'Nome Filial', 'search':'true'}
+                                               ]
+                                           }" class="form-control" />
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <label for="dptoObraColab">Dpto/Obra</label>
+                                    <input type="zoom" id="dptoObraColab" name="dptoObraColab"
+                                           data-zoom="{
+                                               'displayKey':'DESCRICAO',
+                                               'datasetId':'ds_dptoObra',
+                                               'maximumSelectionLength':'1',
+                                               'placeholder':'Pesquise o dpto/obra...',
+                                               'fields':[
+                                                   {'field':'CODIGO', 'label':'Código'},
+                                                   {'field':'DESCRICAO', 'label':'Descrição do Dpto/Obra', 'standard':'true', 'search':'true'},
+                                                   {'field':'CODFILIAL', 'visible':'false'},
+                                                   {'field':'CODCOLIGADA', 'visible':'false'}
+                                               ]
+                                           }" class="form-control" />
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <label for="nomeColaborador">Nome do Colaborador</label>
+                                    <input type="zoom" id="nomeColaborador" name="nomeColaborador"
+                                           data-zoom="{
+                                               'displayKey':'NOME',
+                                               'datasetId':'ds_colaboradores',
+                                               'maximumSelectionLength':'1',
+                                               'placeholder':'Pesquise o colaborador...',
+                                               'fields':[
+                                                   {'field':'CHAPA', 'label':'Matrícula'},
+                                                   {'field':'NOME', 'label':'Nome', 'standard':'true', 'search':'true'},
+                                                   {'field':'CARGO', 'visible':'false'},
+                                                   {'field':'DATAADMISSAO', 'visible':'false'},
+                                                   {'field':'TIPOFUNCIONARIO', 'visible':'false'},
+                                                   {'field':'SITUACAO', 'visible':'false'},
+                                                   {'field':'CODSITUACAO', 'visible':'false'},
+                                                   {'field':'CODCOLIGADA', 'visible':'false'},
+                                                   {'field':'CODFILIAL', 'visible':'false'},
+                                                   {'field':'CODSECAO', 'visible':'false'}
+                                               ]
+                                           }" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-2 form-group">
+                                    <label for="matricula">Matrícula</label>
+                                    <input type="text" class="form-control" name="matricula" id="matricula" readonly>
+                                </div>
+                                <div class="col-md-3 form-group">
+                                    <label for="dataAdmissao">Data da Admissão</label>
+                                    <input type="text" class="form-control" name="dataAdmissao" id="dataAdmissao" readonly>
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <label for="cargo">Cargo Atual</label>
+                                    <input type="text" class="form-control" name="cargo" id="cargo" readonly>
+                                </div>
+                                <div class="col-md-3 form-group">
+                                    <label for="codSituacao">Situação</label>
+                                    <input type="text" class="form-control" name="codSituacao" id="codSituacao" readonly>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8 form-group">
+                                    <label for="gestor">Gestor</label>
+                                    <input type="text" class="form-control" name="gestor" id="gestor" readonly>
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <label for="tipoFuncionario">Tipo Funcionário</label>
+                                    <input type="text" class="form-control" name="tipoFuncionario" id="tipoFuncionario" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-default" id="painelAfastamento">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><i class="fluigicon fluigicon-form"></i> Dados do Afastamento</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-4 form-group">
+                                    <label class="label-obrigatorio">Ação</label>
+                                    <select class="form-control" name="cpTipoAfastamento" id="cpTipoAfastamento" onchange="tratarAcaoAfastamento(this.value)">
+                                        <option value="">Selecione...</option>
+                                        <option value="1">Início/Fim Afastamento (Histórico)</option>
+                                        <option value="2">Início Afastamento</option>
+                                        <option value="3">Retorno Afastamento</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <label id="lblDataInicio" class="label-obrigatorio">Data de Início</label>
+                                    <input type="date" class="form-control" name="DataInicio" id="DataInicio">
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <label id="lblDataFim">Data de Fim</label>
+                                    <input type="date" class="form-control" name="DataFim" id="DataFim">
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 form-group">
+                                    <label id="lblTipoAfastamento" class="label-obrigatorio">Tipo Afastamento</label>
+                                    <input type="zoom" id="cpTipoAfastamentoRM" name="cpTipoAfastamentoRM" class="form-control"
+                                           data-zoom="{
+                                               'displayKey':'NOME',
+                                               'datasetId':'ds_tipoAfastamento',
+                                               'maximumSelectionLength':'1',
+                                               'placeholder':'Pesquise o tipo de afastamento...',
+                                               'fields':[
+                                                   {'field':'CODIGO', 'label':'Código'},
+                                                   {'field':'NOME', 'label':'Nome do Afastamento', 'standard':'true', 'search':'true'}
+                                               ]
+                                           }" />
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <label id="lblMotivoAfastamento">Motivo Afastamento</label>
+                                    <input type="zoom" id="cpMotivoAfastamento" name="cpMotivoAfastamento" class="form-control"
+                                           data-zoom="{
+                                               'displayKey':'DESCRICAO',
+                                               'datasetId':'ds-motivosituacao',
+                                               'maximumSelectionLength':'1',
+                                               'placeholder':'Pesquise o motivo do afastamento...',
+                                               'fields':[
+                                                   {'field':'CODINTERNO', 'label':'Código'},
+                                                   {'field':'DESCRICAO', 'label':'Descrição', 'standard':'true', 'search':'true'}
+                                               ]
+                                           }" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="historico-timeline"></div>
+
+                    <div class="tabelas-ocultas">
+                        <table class="table" tablename="tbInteracoes" id="tbInteracoes" noaddbutton="true" nodeletebutton="true">
+                            <thead><tr class="hide"><th></th></tr></thead>
+                            <tbody>
+                                <tr>
+                                    <td class="td-interacao" style="border:none; padding:0;">
+                                        <input type="text" name="tipoInteracao" id="tipoInteracao" style="display:none;" />
+                                        
+                                        <div class="panel panel-default painel-obs-dinamico painel-solicitante-dinamico" style="margin-bottom: 30px;">
+                                            <div class="panel-heading">
+                                                <h3 class="panel-title">
+                                                    <i class="fluigicon fluigicon-form"></i>
+                                                    <span class="titulo-painel-solicitante">Observações e Anexos</span>
+                                                </h3>
+                                            </div>
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-md-12 form-group">
+                                                        <label>Observações Gerais</label>
+                                                        <textarea class="form-control" name="cpObservacoesGerais_tb" id="cpObservacoesGerais_tb" placeholder="Insira aqui observações adicionais..."></textarea>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="aviso-doc">
+                                                            Favor anexar documento (Atestado que comprove o afastamento)
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row row-anexo-interno">
+                                                    <div class="col-md-12">
+                                                        <div class="caixa-anexo" style="margin-top: 0;">
+                                                            <label><i class="fluigicon fluigicon-paperclip"></i> Documento Anexo</label>
+                                                            <div class="fluigFormAttachmentComponent">
+                                                                <input type="text" class="form-control" readonly name="cpAnexoGeral_tb" id="cpAnexoGeral_tb" data-filename="Anexo_Afastamento" data-accept="*">
+                                                                <div class="fluigFormAttachmentComponent_buttons area-botoes-anexo" style="display:none;">
+                                                                    <button type="button" class="btn-anexo-historico btn-visualizar-injetado" title="Visualizar Anexo" style="display:none;"></button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="panel panel-info painel-bpo-dinamico" style="margin-bottom: 30px;">
+                                            <div class="panel-heading">
+                                                <h3 class="panel-title">
+                                                    <i class="fluigicon fluigicon-checked"></i>
+                                                    <span class="titulo-painel-bpo">Operação IRHO</span>
+                                                </h3>
+                                            </div>
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-md-6 form-group">
+                                                        <label>Analista Responsável (RH)</label>
+                                                        <input type="text" name="cpRespGestor2_tb" id="cpRespGestor2_tb" class="form-control" readonly />
+                                                    </div>
+                                                    <div class="col-md-6 form-group">
+                                                        <label class="label-obrigatorio">Decisão</label>
+                                                        <select name="cpDecisaoRH_tb" id="cpDecisaoRH_tb" class="form-control" onchange="$('#cpDecisaoRH').val(this.value); tratarAcaoBPO(this);">
+                                                            <option value="">Selecione...</option>
+                                                            <option value="Correto">Enviar solução</option>
+                                                            <option value="Incorreto">Devolver para o solicitante</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="row linha-parecer-bpo" style="display: none;">
+                                                    <div class="col-md-12 form-group">
+                                                        <label class="label-obrigatorio">Parecer do RH / Justificativa</label>
+                                                        <textarea class="form-control" name="cpParecercol2_tb" id="cpParecercol2_tb" onkeyup="$('#cpParecercol2').val(this.value)" onchange="$('#cpParecercol2').val(this.value)" placeholder="Escreva observações ou os motivos da devolução..."></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="panel panel-danger painel-correcao-dinamico" style="margin-bottom: 30px;">
+                                            <div class="panel-heading">
+                                                <h3 class="panel-title">
+                                                    <i class="fluigicon fluigicon-form"></i>
+                                                    <span class="titulo-painel-correcao">Correção</span>
+                                                </h3>
+                                            </div>
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-md-12 form-group">
+                                                        <label>Observações da Correção</label>
+                                                        <textarea class="form-control" name="cpObservacoesCorrecao_tb" id="cpObservacoesCorrecao_tb" placeholder="Insira as observações sobre a correção..."></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="row row-anexo-interno">
+                                                    <div class="col-md-12">
+                                                        <div class="caixa-anexo">
+                                                            <label><i class="fluigicon fluigicon-paperclip"></i> Documento Anexo (Correção)</label>
+                                                            <div class="fluigFormAttachmentComponent">
+                                                                <input type="text" class="form-control" readonly name="cpAnexoCorrecao_tb" id="cpAnexoCorrecao_tb" data-filename="Anexo_Correcao_Afastamento" data-accept="*">
+                                                                <div class="fluigFormAttachmentComponent_buttons area-botoes-anexo" style="display:none;">
+                                                                    <button type="button" class="btn-anexo-historico btn-visualizar-injetado" title="Visualizar Anexo" style="display:none;"></button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="panel panel-primary painel-acao-dinamico" style="margin-bottom: 30px;">
+                                            <div class="panel-heading">
+                                                <h3 class="panel-title">
+                                                    <i class="fluigicon fluigicon-checked"></i>
+                                                    <span class="titulo-painel-acao">Ação do Solicitante</span>
+                                                </h3>
+                                            </div>
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-md-12 form-group">
+                                                        <label class="label-obrigatorio">Ação</label>
+                                                        <select name="cpReaberturaChamado_tb" id="cpReaberturaChamado_tb" class="form-control" onchange="$('#cpReaberturaChamado').val(this.value); tratarAcaoSolicitante(this);">
+                                                            <option value="">Selecione...</option>
+                                                            <option value="2">Finalizar (Aceitar Resposta)</option>
+                                                            <option value="1">Reencaminhar (Devolver para o RH)</option>
+                                                            <option value="3">Cancelar Solicitação</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="row linha-parecer-acao" style="display: none;">
+                                                    <div class="col-md-12 form-group">
+                                                        <label class="label-obrigatorio">Resposta / Parecer</label>
+                                                        <textarea class="form-control" name="cpParecerReabertura_tb" id="cpParecerReabertura_tb" onkeyup="$('#cpParecerReabertura').val(this.value)" onchange="$('#cpParecerReabertura').val(this.value)" placeholder="Descreva o motivo da sua ação..."></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </form>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        
+        // INTERATIVIDADE DA SIDEBAR MENU
+        $('.nz-sidebar-menu a').on('click', function(e) {
+            e.preventDefault();
+            $('.nz-sidebar-menu a').removeClass('active');
+            $(this).addClass('active');
+            var target = $(this).attr('href');
+            if(target && $(target).length) {
+                $('html, body').animate({ scrollTop: $(target).offset().top - 40 }, 500);
+            }
+        });
+
+        // =========================================================================
+        // CORREÇÃO DE CORS NO UPLOAD: Intercepta e reescreve a URL do servidor
+        // =========================================================================
+        if (parent && parent.$) {
+            parent.$.ajaxPrefilter(function(options, originalOptions, jqXHR) {
+                // Verifica se a requisição está indo para a rota nativa de upload do Fluig
+                if (options.url && options.url.indexOf("/ecm/upload") !== -1) {
+                    // Remove qualquer IP ou Domínio fixo da URL e força usar o domínio atual do navegador
+                    options.url = options.url.replace(/^https?:\/\/[^\/]+/, window.location.origin);
+                }
+            });
+        }
+        
+        // =========================================================================
+
+        setTimeout(function() {
+            if(window["dptoObraColab"]) window["dptoObraColab"].disable(true);
+            if(window["nomeColaborador"]) window["nomeColaborador"].disable(true);
+            
+            var atvAtual = (typeof ATIVIDADE_ATUAL !== 'undefined') ? ATIVIDADE_ATUAL : 0;
+            var modo = (typeof MODO_FORMULARIO !== 'undefined') ? MODO_FORMULARIO : 'ADD';
+            
+            // Tratar os asteriscos e visibilidade do painel principal (Afastamento)
+            tratarAcaoAfastamento($("#cpTipoAfastamento").val());
+            
+            // Oculta/Bloqueia o painel de Afastamento caso não tenha colaborador selecionado
+            if ((atvAtual == 0 || atvAtual == 3 || atvAtual == 6) && modo !== "VIEW") {
+                if ($("#matricula").val() == "") {
+                    $("#painelAfastamento .panel-body").css({"pointer-events": "none", "opacity": "0.4"});
+                }
+            }
+            
+            $("span.fluigicon-trash").hide();
+            
+            // GERAÇÃO E EMPILHAMENTO DA TIMELINE (ID ATIVIDADES: 4=RH, 6=CORREÇÃO, 11=AÇÃO)
+            if (modo !== "VIEW") {
+                var $clonedRows = $("input[id^='tipoInteracao___']").closest("tr");
+                var totalRows = $clonedRows.length;
+                var lastType = totalRows > 0 ? $clonedRows.last().find("input[id^='tipoInteracao___']").val() : "";
+
+                if (atvAtual == 0 || atvAtual == 3) {
+                    if (totalRows <= 1) adicionarInteracao("SOLICITANTE");
+                } 
+                else if (atvAtual == 4) {
+                    if (lastType !== "BPO") adicionarInteracao("BPO");
+                } 
+                else if (atvAtual == 6) {
+                    if (lastType !== "CORRECAO") adicionarInteracao("CORRECAO");
+                }
+                else if (atvAtual == 11) {
+                    if (lastType !== "ACAO") adicionarInteracao("ACAO");
+                }
+            }
+            
+            aplicarCongelamento();
+            restaurarEstilosPaineisDeObservacao();
+
+        }, 1200);
+    });
+
+    // Função para mostrar/esconder o parecer do BPO/RH
+    window.tratarAcaoBPO = function(obj) {
+        var $painel = $(obj).closest('.panel-body');
+        var valor = $(obj).val();
+        
+        if(valor === 'Incorreto' || valor === 'Correto') {
+            $painel.find('.linha-parecer-bpo').slideDown(300);
+        } else {
+            $painel.find('.linha-parecer-bpo').slideUp(300);
+            $painel.find('textarea[name^="cpParecercol2_tb"]').val('').trigger('change');
+            $('#cpParecercol2').val('');
+        }
+    }
+
+    // Função para mostrar/esconder o parecer da Ação do Solicitante
+    window.tratarAcaoSolicitante = function(obj) {
+        var $painel = $(obj).closest('.panel-body');
+        var valor = $(obj).val();
+        
+        if(valor === '1') { // 1 = Reencaminhar (Devolver para o RH)
+            $painel.find('.linha-parecer-acao').slideDown(300);
+        } else {
+            $painel.find('.linha-parecer-acao').slideUp(300);
+            $painel.find('textarea[name^="cpParecerReabertura_tb"]').val('').trigger('change');
+            $('#cpParecerReabertura').val('');
+        }
+    }
+
+    // Função de tratamento do campo base "Ação" do Afastamento
+    function tratarAcaoAfastamento(valor) {
+        var $painelDataInicio = $("#DataInicio").closest('.form-group');
+        var $painelDataFim = $("#DataFim").closest('.form-group');
+        var $painelTipoAfastamento = $("#cpTipoAfastamentoRM").closest('.form-group');
+        var $painelMotivo = $("#cpMotivoAfastamento").closest('.form-group');
+
+        if (!valor || valor === "") {
+            $painelDataInicio.hide();
+            $painelDataFim.hide();
+            $painelTipoAfastamento.hide();
+            $painelMotivo.hide();
+            
+            $("#DataInicio, #DataFim").val('');
+            if (window["cpTipoAfastamentoRM"]) window["cpTipoAfastamentoRM"].clear();
+            if (window["cpMotivoAfastamento"]) window["cpMotivoAfastamento"].clear();
+            return; 
+        }
+
+        var codigoOculto = $("#codSituacaoOculto").val();
+        var situacaoDesc = $("#codSituacao").val();
+        var modo = (typeof MODO_FORMULARIO !== 'undefined') ? MODO_FORMULARIO : 'ADD';
+        
+        if (modo !== "VIEW" && codigoOculto) {
+            var codLimpo = codigoOculto.trim().toUpperCase();
+            var letrasPermitidas = ["P", "T", "E", "L", "I", "R"];
+            var isAfastado = (letrasPermitidas.indexOf(codLimpo) !== -1);
+            
+            // Validação 1: Tentou Início (2) ou Início/Fim (1) e JÁ ESTÁ afastado
+            if ((valor === "1" || valor === "2") && isAfastado) {
+                FLUIGC.toast({ title: 'Atenção: ', message: 'Esse colaborador ja esta afastado. (Status atual: ' + situacaoDesc + ')', type: 'warning', timeout: 6000 });
+                setTimeout(function() {
+                    $("#cpTipoAfastamento").val("");
+                    tratarAcaoAfastamento("");
+                }, 50);
+                return;
+            }
+            
+            // Validação 2: Tentou Retorno (3) e NÃO ESTÁ afastado (Lógica original)
+            if (valor === "3" && !isAfastado) {
+                FLUIGC.toast({ title: 'Atenção: ', message: 'O colaborador não se encontra afastado. (Status atual: ' + situacaoDesc + ')', type: 'warning', timeout: 6000 });
+                setTimeout(function() {
+                    $("#cpTipoAfastamento").val("");
+                    tratarAcaoAfastamento("");
+                }, 50);
+                return; 
+            }
+        }
+
+        $painelDataInicio.show();
+        $painelDataFim.show();
+        $painelTipoAfastamento.show();
+        $painelMotivo.show();
+
+        $("#lblDataFim").removeClass("label-obrigatorio");
+        $("#lblMotivoAfastamento").removeClass("label-obrigatorio");
+
+        if (valor === "1") {
+            $("#lblDataFim").addClass("label-obrigatorio");
+            $("#lblMotivoAfastamento").addClass("label-obrigatorio");
+            
+        } else if (valor === "2") {
+            $painelDataFim.hide();
+            $("#DataFim").val('');
+            $("#lblMotivoAfastamento").addClass("label-obrigatorio");
+            
+        } else if (valor === "3") {
+            $painelDataInicio.hide();
+            $("#DataInicio").val('');
+            
+            $painelTipoAfastamento.hide();
+            if (window["cpTipoAfastamentoRM"]) window["cpTipoAfastamentoRM"].clear();
+            
+            $painelMotivo.hide();
+            if (window["cpMotivoAfastamento"]) window["cpMotivoAfastamento"].clear();
+            
+            $("#lblDataFim").addClass("label-obrigatorio");
+        }
+    }
+
+    // Lógica para empilhar interações (Novo motor blindado)
+    function adicionarInteracao(tipo) {
+        var rowId = null;
+        var $linhas = $("input[id^='tipoInteracao___']").closest("tr");
+        
+        if ($linhas.length > 0) {
+            var $ultima = $linhas.last();
+            var tipoAtual = $ultima.find("input[id^='tipoInteracao___']").val();
+            if (!tipoAtual || tipoAtual === "") {
+                rowId = $ultima.find("input[id^='tipoInteracao___']").attr("id").split("___")[1];
+            }
+        }
+        
+        if (!rowId) { rowId = wdkAddChild('tbInteracoes'); }
+        $("span.fluigicon-trash").hide();
+        
+        var $linha = $("#tipoInteracao___" + rowId).closest("tr");
+        $("#tipoInteracao___" + rowId).val(tipo);
+
+        $linha.find(".painel-solicitante-dinamico, .painel-bpo-dinamico, .painel-correcao-dinamico, .painel-acao-dinamico").hide();
+
+        if (tipo === "SOLICITANTE") {
+            $linha.find(".painel-solicitante-dinamico").show();
+            setTimeout(function() {
+                $("#cpAnexoGeral_tb___" + rowId).fluigFormAttachment({ showActionButton: true, prefixName: true });
+            }, 150);
+        } else if (tipo === "CORRECAO") {
+            $linha.find(".painel-correcao-dinamico").show();
+            setTimeout(function() {
+                $("#cpAnexoCorrecao_tb___" + rowId).fluigFormAttachment({ showActionButton: true, prefixName: true });
+            }, 150);
+        } else if (tipo === "BPO") {
+            $linha.find(".painel-bpo-dinamico").show();
+            $("#cpRespGestor2_tb___" + rowId).val($("#cpRespGestor2").val());
+            $("#cpDecisaoRH").val("");
+            $("#cpParecercol2").val("");
+        } else if (tipo === "ACAO") {
+            $linha.find(".painel-acao-dinamico").show();
+            $("#cpReaberturaChamado").val("");
+            $("#cpParecerReabertura").val("");
+        }
+    }
+
+    function getFieldValue($container, fieldBaseName) {
+        var $el = $container.find("[id*='" + fieldBaseName + "___']");
+        if ($el.length === 0) return "";
+        var val = "";
+        if ($el.is("input") || $el.is("textarea")) { val = $el.val(); } 
+        else if ($el.is("select")) { val = $el.val(); if (!val) val = $el.find("option:selected").text(); } 
+        else { val = $el.text(); }
+        return (val || "").trim();
+    }
+
+    // Congelamento e bloqueio de inputs passados
+    function aplicarCongelamento() {
+        var atvAtual = (typeof ATIVIDADE_ATUAL !== 'undefined') ? ATIVIDADE_ATUAL : 0;
+        var modo = (typeof MODO_FORMULARIO !== 'undefined') ? MODO_FORMULARIO : 'ADD';
+
+        if (modo == "VIEW" || atvAtual >= 4) {
+            var secoesFixas = ["#painelSolicitante", "#painelColaborador", "#painelAfastamento"];
+
+            $.each(secoesFixas, function(i, secao) {
+                $(secao).find(".panel-body").css("opacity", "1");
+                $(secao).find("input, select, textarea").prop("readonly", true).css("pointer-events", "none").css("background-color", "var(--nz-field-disabled)");
+                
+                $(secao).find(".select2-container").css("pointer-events", "none");
+                $(secao).find(".select2-selection").css("background-color", "var(--nz-field-disabled)");
+            });
+
+            var zooms = ["empresaColab", "dptoObraColab", "nomeColaborador", "cpTipoAfastamentoRM", "cpMotivoAfastamento"];
+            zooms.forEach(function(z) { 
+                try { if (window[z]) window[z].disable(true); } catch(e) {} 
+            });
+        }
+
+        var $clonedRows = $("input[id^='tipoInteracao___']").closest("tr");
+        var totalLinhas = $clonedRows.length;
+
+        $clonedRows.each(function(index) {
+            var $linhaAtual = $(this);
+            var isLast = (index === totalLinhas - 1);
+            var tipo = getFieldValue($linhaAtual, "tipoInteracao");
+            
+            if (tipo === "") {
+                var obsCor = getFieldValue($linhaAtual, "cpObservacoesCorrecao_tb");
+                var decisaoBPO = getFieldValue($linhaAtual, "cpDecisaoRH_tb");
+                var acaoChamado = getFieldValue($linhaAtual, "cpReaberturaChamado_tb");
+
+                if (obsCor !== "") tipo = "CORRECAO";
+                else if (decisaoBPO !== "") tipo = "BPO";
+                else if (acaoChamado !== "") tipo = "ACAO";
+                else tipo = "SOLICITANTE";
+            }
+
+            var congelarLinha = false;
+            
+            if (modo === "VIEW") {
+                congelarLinha = true;
+            } else if (atvAtual == 4) {
+                congelarLinha = !(isLast && tipo === "BPO");
+            } else if (atvAtual == 6) {
+                congelarLinha = !(isLast && tipo === "CORRECAO");
+            } else if (atvAtual == 11) {
+                congelarLinha = !(isLast && tipo === "ACAO");
+            } else {
+                congelarLinha = true;
+            }
+
+            if ((atvAtual == 0 || atvAtual == 3) && tipo === "SOLICITANTE" && isLast) {
+                congelarLinha = false;
+            }
+
+            if (congelarLinha) {
+                $linhaAtual.find("input, select, textarea").prop("readonly", true).css("pointer-events", "none").css("background-color", "var(--nz-field-disabled)");
+                
+                if (tipo === "SOLICITANTE" || tipo === "CORRECAO") {
+                    var isCorrecao = (tipo === "CORRECAO");
+                    var anexoGeral = getFieldValue($linhaAtual, "cpAnexoGeral_tb");
+                    var anexoCor = getFieldValue($linhaAtual, "cpAnexoCorrecao_tb");
+                    var nomeArquivo = isCorrecao ? anexoCor : anexoGeral;
+                    
+                    $linhaAtual.find(".fluigFormAttachmentBtnDeleteFile, .fluigFormAttachmentBtnUploadFile").hide();
+                    
+                    if (nomeArquivo !== "") {
+                        $linhaAtual.find(".row-anexo-interno").show();
+                        $linhaAtual.find(".area-botoes-anexo").show();
+                        var $btnVis = $linhaAtual.find(".btn-visualizar-injetado");
+                        $btnVis.show();
+                        $btnVis.off("click").on("click", function() { abrirAnexoFluigNativo(nomeArquivo); });
+                    } else {
+                        $linhaAtual.find(".row-anexo-interno").hide();
+                    }
+                }
+            }
+        });
+    }
+
+    // Extração para o Histórico de Timeline Cronológico
+    function restaurarEstilosPaineisDeObservacao() {
+        var contSol = 0, contBPO = 0, contCor = 0, contAcao = 0;
+        var modo = (typeof MODO_FORMULARIO !== 'undefined') ? MODO_FORMULARIO : 'ADD';
+        var timeline = $("#historico-timeline");
+        var $clonedRows = $("input[id^='tipoInteracao___']").closest("tr");
+        var totalLinhas = $clonedRows.length;
+
+        $clonedRows.each(function(index) {
+            var $linha = $(this);
+            var isLast = (index === totalLinhas - 1);
+            
+            $linha.find(".painel-solicitante-dinamico, .painel-bpo-dinamico, .painel-correcao-dinamico, .painel-acao-dinamico").hide();
+
+            var tipo = getFieldValue($linha, "tipoInteracao");
+            var obsCor = getFieldValue($linha, "cpObservacoesCorrecao_tb");
+            var decisaoBPO = getFieldValue($linha, "cpDecisaoRH_tb");
+            var parecerBPO = getFieldValue($linha, "cpParecercol2_tb");
+            var acaoChamado = getFieldValue($linha, "cpReaberturaChamado_tb");
+            
+            if (tipo === "") {
+                if (obsCor !== "") tipo = "CORRECAO";
+                else if (decisaoBPO !== "") tipo = "BPO";
+                else if (acaoChamado !== "") tipo = "ACAO";
+                else tipo = "SOLICITANTE";
+            }
+
+            var temConteudo = false;
+            
+            if (tipo === "SOLICITANTE") temConteudo = true; 
+            if (tipo === "BPO" && (parecerBPO !== "" || (decisaoBPO !== "" && decisaoBPO !== "Selecione..."))) temConteudo = true;
+            if (tipo === "CORRECAO" && obsCor !== "") temConteudo = true;
+            if (tipo === "ACAO" && (acaoChamado !== "" && acaoChamado !== "Selecione...")) temConteudo = true;
+
+            if (!temConteudo) { 
+                if (modo === "VIEW" || !isLast) { return; } 
+            }
+
+            var $painelAExtrair = null;
+            
+            if (tipo === "SOLICITANTE") {
+                contSol++;
+                $painelAExtrair = $linha.find(".painel-solicitante-dinamico");
+                $painelAExtrair.show();
+                $painelAExtrair.find(".titulo-painel-solicitante").text("Observações e Anexos");
+
+            } else if (tipo === "CORRECAO") {
+                contCor++;
+                $painelAExtrair = $linha.find(".painel-correcao-dinamico");
+                $painelAExtrair.show();
+                $painelAExtrair.find(".titulo-painel-correcao").text("Correção " + contCor);
+
+            } else if (tipo === "BPO") {
+                contBPO++;
+                $painelAExtrair = $linha.find(".painel-bpo-dinamico");
+                $painelAExtrair.show();
+                $painelAExtrair.find(".titulo-painel-bpo").text("Operação IRHO " + contBPO);
+                
+                if (parecerBPO !== "" || (decisaoBPO !== "" && decisaoBPO !== "Selecione...")) {
+                    $painelAExtrair.find(".linha-parecer-bpo").show();
+                } else {
+                    $painelAExtrair.find(".linha-parecer-bpo").hide();
+                }
+
+            } else if (tipo === "ACAO") {
+                contAcao++;
+                $painelAExtrair = $linha.find(".painel-acao-dinamico");
+                $painelAExtrair.show();
+                $painelAExtrair.find(".titulo-painel-acao").text("Ação do Solicitante " + contAcao);
+                
+                if (acaoChamado === "1") {
+                    $painelAExtrair.find(".linha-parecer-acao").show();
+                } else {
+                    $painelAExtrair.find(".linha-parecer-acao").hide();
+                }
+            }
+            
+            if ($painelAExtrair && $painelAExtrair.length > 0) {
+                $painelAExtrair.css({"margin-bottom": "0", "display": "block", "visibility": "visible"});
+                timeline.append($painelAExtrair);
+            }
+        });
+    }
+
+    function abrirAnexoFluigNativo(fileName) {
+        try {
+            if (!parent.ECM || !parent.ECM.attachmentTable) return;
+            // CORREÇÃO: Utilizando indexOf para buscar o anexo
+            var attachIndex = parent.ECM.attachmentTable.getData().findIndex(function(a) { return a.description.indexOf(fileName) > -1; });
+            
+            if (attachIndex === -1) { 
+                FLUIGC.toast({title: "Atenção", message: "Anexo não encontrado. Acesse pela aba 'Anexos'.", type: "warning"}); 
+                return; 
+            }
+            var e = parent.ECM.attachmentTable.getRow(attachIndex);
+            
+            if (e.documentId) {
+                var t = parent.WCMAPI ? parent.WCMAPI.tenantCode || parent.WCMAPI.organizationId : 1;
+                parent.WKFViewAttachment.openAttachmentView(t, e.documentId, e.version);
+            } else {
+                FLUIGC.toast({title: "Aviso", message: "Arquivo não sincronizado.", type: "info"});
+            }
+        } catch(e) {}
+    }
+
+    // ========================================================
+    // INTEGRAÇÃO RM - BUSCA DO GESTOR E PREENCHIMENTO CASCATA
+    // ========================================================
+    function buscarGestorAjax(codSecao, codColigada, callbackSucesso, callbackErro) {
+        var requestData = {
+            "name": "ds_gestoresColaboradoresSecao",
+            "fields": [],
+            "constraints": [
+                { "_field": "CODSECAO", "_initialValue": String(codSecao).trim(), "_finalValue": String(codSecao).trim(), "_type": 1, "_likeSearch": false },
+                { "_field": "CODCOLIGADA", "_initialValue": String(codColigada).trim(), "_finalValue": String(codColigada).trim(), "_type": 1, "_likeSearch": false }
+            ],
+            "order": []
+        };
+        var processarRetorno = function(data) {
+            var content = [];
+            if (data && Array.isArray(data.values)) { content = data.values; } 
+            else if (data && data.content && Array.isArray(data.content.values)) { content = data.content.values; } 
+            else if (data && Array.isArray(data.content)) { content = data.content; } 
+            else if (Array.isArray(data)) { content = data; }
+            callbackSucesso(content);
+        };
+        var tentarFallback = function() {
+            $.ajax({
+                url: '/ecm/api/rest/ecm/dataset/getDataset',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(requestData),
+                success: processarRetorno,
+                error: callbackErro
+            });
+        };
+        try {
+            if (typeof window.parent !== 'undefined' && window.parent.WCMAPI) {
+                window.parent.WCMAPI.Create({
+                    url: "/api/public/ecm/dataset/datasets/",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(requestData),
+                    success: processarRetorno,
+                    error: function(err) { tentarFallback(); }
+                });
+            } else { tentarFallback(); }
+        } catch(e) { tentarFallback(); }
+    }
+
+    function setSelectedZoomItem(selectedItem) {
+        
+        // 1. QUANDO SELECIONAR A EMPRESA-FILIAL
+        if (selectedItem.inputId == "empresaColab") {
+            window["dptoObraColab"].disable(false);
+            
+            var filter = "CODCOLIGADA," + selectedItem.COLIGADA;
+            if (selectedItem.CODFILIAL) { filter += ",CODFILIAL," + selectedItem.CODFILIAL; }
+            
+            reloadZoomFilterValues("dptoObraColab", filter);
+
+            // Guarda a Coligada e Filial em variáveis globais para a próxima etapa
+            window.ColigadaSelecionada = selectedItem.COLIGADA;
+            window.FilialSelecionada = selectedItem.CODFILIAL || "";
+        }
+        
+        // 2. QUANDO SELECIONAR O DPTO/OBRA
+        if (selectedItem.inputId == "dptoObraColab") {
+            window["nomeColaborador"].disable(false);
+            
+            // Concatena Seção, Coligada e Filial no filtro do Colaborador
+            var filterColab = "CODSECAO," + selectedItem.CODIGO;
+            
+            // Resgata a coligada/filial das variáveis globais
+            var codCol = selectedItem.CODCOLIGADA || window.ColigadaSelecionada;
+            var codFil = selectedItem.CODFILIAL || window.FilialSelecionada;
+
+            if (codCol) { filterColab += ",CODCOLIGADA," + codCol; }
+            if (codFil) { filterColab += ",CODFILIAL," + codFil; }
+
+            // Recarrega o zoom de Colaboradores aplicando todos os filtros juntos
+            reloadZoomFilterValues("nomeColaborador", filterColab);
+        }
+        
+        if (selectedItem.inputId == "nomeColaborador") {
+            var acaoAfastamento = $("#cpTipoAfastamento").val();
+
+            var valCodSit = selectedItem.CODSITUACAO || "";
+            if (Array.isArray(valCodSit)) valCodSit = valCodSit[0];
+            var codSitLimpo = String(valCodSit).trim().toUpperCase();
+
+            var valSit = selectedItem.SITUACAO || "";
+            if (Array.isArray(valSit)) valSit = valSit[0];
+            var sitStr = String(valSit).trim();
+
+            $("#matricula").val(selectedItem.CHAPA || "");
+            $("#cargo").val(selectedItem.CARGO || "");
+            $("#dataAdmissao").val(selectedItem.DATAADMISSAO || "");
+            $("#tipoFuncionario").val(selectedItem.TIPOFUNCIONARIO || "");
+            $("#codSituacao").val(sitStr); 
+            $("#codSituacaoOculto").val(codSitLimpo); 
+            $("#TxtChapa").val(selectedItem.CHAPA || "");
+
+            $("#gestor").val("Buscando gestor...");
+            
+            $("#painelAfastamento .panel-body").css({"pointer-events": "auto", "opacity": "1"});
+
+            var letrasPermitidas = ["P", "T", "E", "L", "I", "R"];
+            var isAfastado = (codSitLimpo !== "" && letrasPermitidas.indexOf(codSitLimpo) !== -1);
+
+            // Validação encadeada no evento de escolha da lupa
+            if (isAfastado) {
+                if (acaoAfastamento === "1" || acaoAfastamento === "2") {
+                    FLUIGC.toast({ title: 'Atenção: ', message: 'Esse colaborador ja esta afastado.', type: 'warning', timeout: 5000 });
+                    $("#cpTipoAfastamento").val("");
+                    tratarAcaoAfastamento("");
+                }
+            } else {
+                if (acaoAfastamento === "3") {
+                    FLUIGC.toast({ title: 'Atenção: ', message: 'O colaborador não se encontra afastado.', type: 'warning', timeout: 5000 });
+                    $("#cpTipoAfastamento").val("");
+                    tratarAcaoAfastamento("");
+                }
+            }
+            
+            setTimeout(function() {
+                var codSecao = Array.isArray(selectedItem.CODSECAO) ? selectedItem.CODSECAO[0] : selectedItem.CODSECAO;
+                var codColigada = Array.isArray(selectedItem.CODCOLIGADA) ? selectedItem.CODCOLIGADA[0] : selectedItem.CODCOLIGADA;
+
+                if (codSecao && codColigada) {
+                    buscarGestorAjax(codSecao, codColigada, function(content) {
+                        if (content && content.length > 0) {
+                            var row = content[0];
+                            if (row.ERRO) { $("#gestor").val("Erro ao ler integração (F12)"); return; }
+                            var codGestor = row.CHAPASUBST && String(row.CHAPASUBST) !== "null" ? String(row.CHAPASUBST).trim() : "";
+                            var nomeGestor = row.NOME1 && String(row.NOME1) !== "null" ? String(row.NOME1).trim() : "";
+                            if (codGestor !== "" && nomeGestor !== "") { $("#gestor").val(codGestor + " - " + nomeGestor); } 
+                            else if (nomeGestor !== "") { $("#gestor").val(nomeGestor); } 
+                            else if (codGestor !== "") { $("#gestor").val(codGestor); } 
+                            else { $("#gestor").val("Gestor cadastrado sem nome ou código"); }
+                        } else { $("#gestor").val("Nenhum gestor encontrado na tabela"); }
+                    }, function(err) { $("#gestor").val("Falha de comunicação (401)"); });
+                } else { $("#gestor").val("Colaborador sem Seção/Coligada"); }
+            }, 150);
+        }
+    }
+
+    window.removedZoomItem = function(removedItem) {
+        var colaboradorRemovido = false;
+        
+        if (removedItem.inputId == "empresaColab") {
+            reloadZoomFilterValues("dptoObraColab", "");
+            if(window["dptoObraColab"]) { window["dptoObraColab"].clear(); window["dptoObraColab"].disable(true); }
+            
+            reloadZoomFilterValues("nomeColaborador", "");
+            if(window["nomeColaborador"]) { window["nomeColaborador"].clear(); window["nomeColaborador"].disable(true); }
+            
+            $("#matricula, #cargo, #dataAdmissao, #gestor, #tipoFuncionario, #codSituacao, #codSituacaoOculto, #TxtChapa").val("");
+            colaboradorRemovido = true;
+
+            // Limpa a memória das variáveis de filtro para evitar vazamento entre seleções
+            window.ColigadaSelecionada = "";
+            window.FilialSelecionada = "";
+        }
+        
+        if (removedItem.inputId == "dptoObraColab") {
+            reloadZoomFilterValues("nomeColaborador", "");
+            if(window["nomeColaborador"]) { window["nomeColaborador"].clear(); window["nomeColaborador"].disable(true); }
+            $("#matricula, #cargo, #dataAdmissao, #gestor, #tipoFuncionario, #codSituacao, #codSituacaoOculto, #TxtChapa").val("");
+            colaboradorRemovido = true;
+        }
+        
+        if (removedItem.inputId == "nomeColaborador") {
+            $("#matricula, #cargo, #dataAdmissao, #gestor, #tipoFuncionario, #codSituacao, #codSituacaoOculto, #TxtChapa").val("");
+            colaboradorRemovido = true;
+        }
+        
+        if (colaboradorRemovido) {
+            $("#painelAfastamento .panel-body").css({"pointer-events": "none", "opacity": "0.4"});
+            $("#cpTipoAfastamento option[value='3']").prop("disabled", false); 
+            $("#cpTipoAfastamento, #DataInicio, #DataFim").val('');
+            if(window["cpTipoAfastamentoRM"]) window["cpTipoAfastamentoRM"].clear();
+            if(window["cpMotivoAfastamento"]) window["cpMotivoAfastamento"].clear();
+            tratarAcaoAfastamento("");
+        }
+    }
+</script>
+</body>
+</html>
