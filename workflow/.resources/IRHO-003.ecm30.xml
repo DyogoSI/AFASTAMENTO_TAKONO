@@ -60,8 +60,8 @@
       <deadlineTime>0</deadlineTime>
       <joint>false</joint>
       <agreementPercentage>0</agreementPercentage>
-      <engineAllocationId>Papel</engineAllocationId>
-      <engineAllocationConfiguration>&lt;AssignmentController&gt;&lt;Role&gt;admin&lt;/Role&gt;&lt;/AssignmentController&gt;</engineAllocationConfiguration>
+      <engineAllocationId></engineAllocationId>
+      <engineAllocationConfiguration></engineAllocationConfiguration>
       <selectColleague>1</selectColleague>
       <initialState>true</initialState>
       <notifyAuthorityDelay>true</notifyAuthorityDelay>

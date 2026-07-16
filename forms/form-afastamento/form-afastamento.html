@@ -373,6 +373,15 @@
             width: 100%;
         }
         .select2-container--default.select2-container--disabled .select2-selection--single { background: var(--nz-field-disabled) !important; }
+
+        /* Sinalização visual de zoom bloqueado/congelado (aplicada via JS em blindarVisualZoom) */
+        .select2-container.zoom-bloqueado .select2-selection--single,
+        .select2-container.zoom-bloqueado .select2-selection--multiple {
+            background: var(--nz-field-disabled) !important;
+            cursor: not-allowed !important;
+        }
+        .select2-container.zoom-bloqueado .select2-selection__rendered { color: #8d9aa3 !important; }
+        .select2-container.zoom-bloqueado .select2-selection__arrow { opacity: 0.5; }
         .select2-container--default .select2-selection--single .select2-selection__arrow { height: 46px !important; }
         .select2-container--default .select2-selection--multiple .select2-selection__rendered {
             min-height: 46px !important;
@@ -413,18 +422,25 @@
         /* =========================================
            ESTILOS DOS ANEXOS E BOTÃO DE LIXEIRA CORRIGIDO
         ========================================= */
-        .caixa-anexo { 
-            border: 1px dashed var(--nz-border); 
-            background: #f8fafb; 
-            border-radius: 12px; 
-            padding: 24px; 
-            margin-top: 15px; 
+        .caixa-anexo {
+            border: 1px dashed var(--nz-border);
+            background: var(--nz-field-bg);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 15px;
         }
-        .caixa-anexo label { 
-            color: #9fa8af !important; 
-            font-size: 15px !important; 
-            text-transform: uppercase; 
-            margin-bottom: 12px !important; 
+        .caixa-anexo label {
+            color: var(--nz-text) !important;
+            font-size: 15px !important;
+            text-transform: uppercase;
+            margin-bottom: 12px !important;
+        }
+        /* O input de nome do arquivo é readonly (preenchido pelo upload), mas não deve parecer bloqueado */
+        .caixa-anexo input.form-control[readonly] {
+            background: var(--nz-field-bg) !important;
+            color: var(--nz-text) !important;
+            border-color: var(--nz-border) !important;
+            cursor: text !important;
         }
         .fluigFormAttachmentComponent { display: flex; width: 100%; gap: 12px; align-items: center; }
         .fluigFormAttachmentComponent input { flex: 1; min-width: 0; }
@@ -900,6 +916,8 @@
         // =========================================================================
 
         setTimeout(function() {
+            ["empresaColab", "dptoObraColab", "nomeColaborador", "cpTipoAfastamentoRM", "cpMotivoAfastamento"].forEach(blindarVisualZoom);
+
             if(window["dptoObraColab"]) window["dptoObraColab"].disable(true);
             if(window["nomeColaborador"]) window["nomeColaborador"].disable(true);
             
@@ -1095,6 +1113,24 @@
         }
     }
 
+    // Pinta de cinza o zoom quando ele está bloqueado, para sinalizar visualmente o congelamento
+    function marcarZoomBloqueado(nome, bloqueado) {
+        var $container = $("#" + nome).closest(".form-group").find(".select2-container");
+        if ($container.length === 0) { $container = $("#s2id_" + nome); }
+        $container.toggleClass("zoom-bloqueado", !!bloqueado);
+    }
+
+    // Intercepta o .disable() do zoom para acionar a pintura acima em toda chamada existente no formulário
+    function blindarVisualZoom(nome) {
+        if (!window[nome] || typeof window[nome].disable !== "function" || window[nome]._visualBlindado) return;
+        var disableOriginal = window[nome].disable;
+        window[nome].disable = function(bloqueado) {
+            disableOriginal.call(window[nome], bloqueado);
+            marcarZoomBloqueado(nome, bloqueado);
+        };
+        window[nome]._visualBlindado = true;
+    }
+
     function getFieldValue($container, fieldBaseName) {
         var $el = $container.find("[id*='" + fieldBaseName + "___']");
         if ($el.length === 0) return "";
@@ -1115,8 +1151,9 @@
 
             $.each(secoesFixas, function(i, secao) {
                 $(secao).find(".panel-body").css("opacity", "1");
-                $(secao).find("input, select, textarea").prop("readonly", true).css("pointer-events", "none").css("background-color", "var(--nz-field-disabled)");
-                
+                $(secao).find("input, select").prop("readonly", true).css("pointer-events", "none").css("background-color", "var(--nz-field-disabled)");
+                $(secao).find("textarea").prop("readonly", true).css("background-color", "var(--nz-field-disabled)");
+
                 $(secao).find(".select2-container").css("pointer-events", "none");
                 $(secao).find(".select2-selection").css("background-color", "var(--nz-field-disabled)");
             });
@@ -1165,7 +1202,8 @@
             }
 
             if (congelarLinha) {
-                $linhaAtual.find("input, select, textarea").prop("readonly", true).css("pointer-events", "none").css("background-color", "var(--nz-field-disabled)");
+                $linhaAtual.find("input, select").prop("readonly", true).css("pointer-events", "none").css("background-color", "var(--nz-field-disabled)");
+                $linhaAtual.find("textarea").prop("readonly", true).css("background-color", "var(--nz-field-disabled)");
                 
                 if (tipo === "SOLICITANTE" || tipo === "CORRECAO") {
                     var isCorrecao = (tipo === "CORRECAO");
