@@ -42,8 +42,15 @@ function validateForm(form) {
         }
         
         // Exige parecer tanto para Incorreto quanto para Correto
-        if ((decisao == "Incorreto" || decisao == "Correto") && (parecer == null || String(parecer).trim() == "")) { 
-            msg += "- É obrigatório preencher o Parecer do RH / Justificativa;\n"; 
+        if ((decisao == "Incorreto" || decisao == "Correto") && (parecer == null || String(parecer).trim() == "")) {
+            msg += "- É obrigatório preencher o Parecer do RH / Justificativa;\n";
+        }
+
+        if (decisao == "Incorreto") {
+            var anexoDevolucao = form.getValue("cpAnexoDevolucaoBPO");
+            if (anexoDevolucao == null || anexoDevolucao == "") {
+                msg += "- É obrigatório anexar o documento ao devolver para o solicitante.\n";
+            }
         }
     }
 
@@ -61,6 +68,13 @@ function validateForm(form) {
         // Exige o parecer apenas se a ação for 1 (Reencaminhar)
         if (acao == "1" && (parecerAcao == null || String(parecerAcao).trim() == "")) {
             msg += "- É obrigatório preencher a Resposta / Parecer justificando o retorno para o RH.\n";
+        }
+
+        if (acao == "1") {
+            var anexoAcao = form.getValue("cpAnexoDevolucaoAcao");
+            if (anexoAcao == null || anexoAcao == "") {
+                msg += "- É obrigatório anexar o documento ao reencaminhar para o RH.\n";
+            }
         }
     }
 

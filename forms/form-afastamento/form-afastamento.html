@@ -382,6 +382,15 @@
         }
         .select2-container.zoom-bloqueado .select2-selection__rendered { color: #8d9aa3 !important; }
         .select2-container.zoom-bloqueado .select2-selection__arrow { opacity: 0.5; }
+
+        /* Reforço via CSS puro: se o input do zoom estiver readonly, pinta o container do select2 mesmo sem JS */
+        input[type="zoom"][readonly] ~ .select2-container .select2-selection--single,
+        input[type="zoom"][readonly] ~ .select2-container .select2-selection--multiple {
+            background: var(--nz-field-disabled) !important;
+            cursor: not-allowed !important;
+        }
+        input[type="zoom"][readonly] ~ .select2-container .select2-selection__rendered { color: #8d9aa3 !important; }
+        input[type="zoom"][readonly] ~ .select2-container .select2-selection__arrow { opacity: 0.5; }
         .select2-container--default .select2-selection--single .select2-selection__arrow { height: 46px !important; }
         .select2-container--default .select2-selection--multiple .select2-selection__rendered {
             min-height: 46px !important;
@@ -527,9 +536,11 @@
         
         <input type="text" id="cpReaberturaChamado" name="cpReaberturaChamado" style="display:none;" />
         <input type="text" id="cpParecerReabertura" name="cpParecerReabertura" style="display:none;" />
+        <input type="text" id="cpAnexoDevolucaoAcao" name="cpAnexoDevolucaoAcao" style="display:none;" />
         <input type="text" id="cpRespGestor2" name="cpRespGestor2" style="display:none;" />
         <input type="text" id="cpDecisaoRH" name="cpDecisaoRH" style="display:none;" />
         <input type="text" id="cpParecercol2" name="cpParecercol2" style="display:none;" />
+        <input type="text" id="cpAnexoDevolucaoBPO" name="cpAnexoDevolucaoBPO" style="display:none;" />
         <input type="text" id="cpFlagNovaRodada" name="cpFlagNovaRodada" style="display:none;" />
 
         <div class="nz-form-layout">
@@ -611,7 +622,7 @@
                                            }" class="form-control" />
                                 </div>
                                 <div class="col-md-4 form-group">
-                                    <label for="dptoObraColab">Dpto/Obra</label>
+                                    <label for="dptoObraColab">Seção Dpto/Obra</label>
                                     <input type="zoom" id="dptoObraColab" name="dptoObraColab"
                                            data-zoom="{
                                                'displayKey':'DESCRICAO',
@@ -809,10 +820,25 @@
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div class="row linha-parecer-bpo" style="display: none;">
-                                                    <div class="col-md-12 form-group">
-                                                        <label class="label-obrigatorio">Parecer do RH / Justificativa</label>
-                                                        <textarea class="form-control" name="cpParecercol2_tb" id="cpParecercol2_tb" onkeyup="$('#cpParecercol2').val(this.value)" onchange="$('#cpParecercol2').val(this.value)" placeholder="Escreva observações ou os motivos da devolução..."></textarea>
+                                                <div class="linha-parecer-bpo" style="display: none;">
+                                                    <div class="row">
+                                                        <div class="col-md-12 form-group">
+                                                            <label class="label-obrigatorio">Parecer do RH / Justificativa</label>
+                                                            <textarea class="form-control" name="cpParecercol2_tb" id="cpParecercol2_tb" onkeyup="$('#cpParecercol2').val(this.value)" onchange="$('#cpParecercol2').val(this.value)" placeholder="Escreva observações ou os motivos da devolução..."></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row row-anexo-interno">
+                                                        <div class="col-md-12">
+                                                            <div class="caixa-anexo">
+                                                                <label class="label-obrigatorio"><i class="fluigicon fluigicon-paperclip"></i> Documento Anexo (Devolução)</label>
+                                                                <div class="fluigFormAttachmentComponent">
+                                                                    <input type="text" class="form-control" readonly name="cpAnexoDevolucaoBPO_tb" id="cpAnexoDevolucaoBPO_tb" data-filename="Anexo_Devolucao_Afastamento" data-accept="*">
+                                                                    <div class="fluigFormAttachmentComponent_buttons area-botoes-anexo" style="display:none;">
+                                                                        <button type="button" class="btn-anexo-historico btn-visualizar-injetado" title="Visualizar Anexo" style="display:none;"></button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -867,10 +893,25 @@
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div class="row linha-parecer-acao" style="display: none;">
-                                                    <div class="col-md-12 form-group">
-                                                        <label class="label-obrigatorio">Resposta / Parecer</label>
-                                                        <textarea class="form-control" name="cpParecerReabertura_tb" id="cpParecerReabertura_tb" onkeyup="$('#cpParecerReabertura').val(this.value)" onchange="$('#cpParecerReabertura').val(this.value)" placeholder="Descreva o motivo da sua ação..."></textarea>
+                                                <div class="linha-parecer-acao" style="display: none;">
+                                                    <div class="row">
+                                                        <div class="col-md-12 form-group">
+                                                            <label class="label-obrigatorio">Resposta / Parecer</label>
+                                                            <textarea class="form-control" name="cpParecerReabertura_tb" id="cpParecerReabertura_tb" onkeyup="$('#cpParecerReabertura').val(this.value)" onchange="$('#cpParecerReabertura').val(this.value)" placeholder="Descreva o motivo da sua ação..."></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row row-anexo-interno">
+                                                        <div class="col-md-12">
+                                                            <div class="caixa-anexo">
+                                                                <label class="label-obrigatorio"><i class="fluigicon fluigicon-paperclip"></i> Documento Anexo</label>
+                                                                <div class="fluigFormAttachmentComponent">
+                                                                    <input type="text" class="form-control" readonly name="cpAnexoDevolucaoAcao_tb" id="cpAnexoDevolucaoAcao_tb" data-filename="Anexo_Devolucao_Acao" data-accept="*">
+                                                                    <div class="fluigFormAttachmentComponent_buttons area-botoes-anexo" style="display:none;">
+                                                                        <button type="button" class="btn-anexo-historico btn-visualizar-injetado" title="Visualizar Anexo" style="display:none;"></button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -973,6 +1014,8 @@
             $painel.find('.linha-parecer-bpo').slideUp(300);
             $painel.find('textarea[name^="cpParecercol2_tb"]').val('').trigger('change');
             $('#cpParecercol2').val('');
+            $painel.find('input[name^="cpAnexoDevolucaoBPO_tb"]').val('').trigger('change');
+            $('#cpAnexoDevolucaoBPO').val('');
         }
     }
 
@@ -987,6 +1030,8 @@
             $painel.find('.linha-parecer-acao').slideUp(300);
             $painel.find('textarea[name^="cpParecerReabertura_tb"]').val('').trigger('change');
             $('#cpParecerReabertura').val('');
+            $painel.find('input[name^="cpAnexoDevolucaoAcao_tb"]').val('').trigger('change');
+            $('#cpAnexoDevolucaoAcao').val('');
         }
     }
 
@@ -1106,16 +1151,30 @@
             $("#cpRespGestor2_tb___" + rowId).val($("#cpRespGestor2").val());
             $("#cpDecisaoRH").val("");
             $("#cpParecercol2").val("");
+            $("#cpAnexoDevolucaoBPO").val("");
+            setTimeout(function() {
+                $("#cpAnexoDevolucaoBPO_tb___" + rowId).fluigFormAttachment({ showActionButton: true, prefixName: true }).on("change", function() {
+                    $("#cpAnexoDevolucaoBPO").val($(this).val());
+                });
+            }, 150);
         } else if (tipo === "ACAO") {
             $linha.find(".painel-acao-dinamico").show();
             $("#cpReaberturaChamado").val("");
             $("#cpParecerReabertura").val("");
+            $("#cpAnexoDevolucaoAcao").val("");
+            setTimeout(function() {
+                $("#cpAnexoDevolucaoAcao_tb___" + rowId).fluigFormAttachment({ showActionButton: true, prefixName: true }).on("change", function() {
+                    $("#cpAnexoDevolucaoAcao").val($(this).val());
+                });
+            }, 150);
         }
     }
 
     // Pinta de cinza o zoom quando ele está bloqueado, para sinalizar visualmente o congelamento
     function marcarZoomBloqueado(nome, bloqueado) {
-        var $container = $("#" + nome).closest(".form-group").find(".select2-container");
+        var $campo = $("#" + nome);
+        var $container = $campo.parent().find(".select2-container");
+        if ($container.length === 0) { $container = $campo.closest(".form-group").find(".select2-container"); }
         if ($container.length === 0) { $container = $("#s2id_" + nome); }
         $container.toggleClass("zoom-bloqueado", !!bloqueado);
     }
@@ -1205,11 +1264,15 @@
                 $linhaAtual.find("input, select").prop("readonly", true).css("pointer-events", "none").css("background-color", "var(--nz-field-disabled)");
                 $linhaAtual.find("textarea").prop("readonly", true).css("background-color", "var(--nz-field-disabled)");
                 
-                if (tipo === "SOLICITANTE" || tipo === "CORRECAO") {
+                if (tipo === "SOLICITANTE" || tipo === "CORRECAO" || tipo === "BPO" || tipo === "ACAO") {
                     var isCorrecao = (tipo === "CORRECAO");
+                    var isBPO = (tipo === "BPO");
+                    var isAcao = (tipo === "ACAO");
                     var anexoGeral = getFieldValue($linhaAtual, "cpAnexoGeral_tb");
                     var anexoCor = getFieldValue($linhaAtual, "cpAnexoCorrecao_tb");
-                    var nomeArquivo = isCorrecao ? anexoCor : anexoGeral;
+                    var anexoBPO = getFieldValue($linhaAtual, "cpAnexoDevolucaoBPO_tb");
+                    var anexoAcao = getFieldValue($linhaAtual, "cpAnexoDevolucaoAcao_tb");
+                    var nomeArquivo = isCorrecao ? anexoCor : (isBPO ? anexoBPO : (isAcao ? anexoAcao : anexoGeral));
                     
                     $linhaAtual.find(".fluigFormAttachmentBtnDeleteFile, .fluigFormAttachmentBtnUploadFile").hide();
                     

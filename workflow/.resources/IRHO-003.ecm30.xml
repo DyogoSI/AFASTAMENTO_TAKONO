@@ -28,7 +28,7 @@
     <processDefinitionVersionPK>
       <companyId>1</companyId>
       <processId>Afastamento</processId>
-      <version>6</version>
+      <version>7</version>
     </processDefinitionVersionPK>
     <versionDescription></versionDescription>
     <formId>9</formId>
@@ -498,7 +498,7 @@
         <companyId>1</companyId>
         <processId>IRHO-003</processId>
         <expressionOrder>1</expressionOrder>
-        <version>6</version>
+        <version>7</version>
         <sequence>5</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;cpDecisaoRH&quot;) == &quot;Incorreto&quot;</condition>
@@ -510,7 +510,7 @@
         <companyId>1</companyId>
         <processId>IRHO-003</processId>
         <expressionOrder>2</expressionOrder>
-        <version>6</version>
+        <version>7</version>
         <sequence>5</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;cpDecisaoRH&quot;) == &quot;Correto&quot;</condition>
@@ -522,7 +522,7 @@
         <companyId>1</companyId>
         <processId>IRHO-003</processId>
         <expressionOrder>1</expressionOrder>
-        <version>6</version>
+        <version>7</version>
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;cpReaberturaChamado&quot;) == &quot;1&quot;</condition>
@@ -534,7 +534,7 @@
         <companyId>1</companyId>
         <processId>IRHO-003</processId>
         <expressionOrder>2</expressionOrder>
-        <version>6</version>
+        <version>7</version>
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;cpReaberturaChamado&quot;) == &quot;2&quot;</condition>
@@ -546,7 +546,7 @@
         <companyId>1</companyId>
         <processId>IRHO-003</processId>
         <expressionOrder>3</expressionOrder>
-        <version>6</version>
+        <version>7</version>
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;cpReaberturaChamado&quot;) == &quot;3&quot;</condition>
